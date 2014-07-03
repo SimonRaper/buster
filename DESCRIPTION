@@ -1,0 +1,10 @@
+Package: buster
+Type: Package
+Title: Bagging on hierarchical clustering
+Version: 1.0
+Date: 2014-07-03
+Author: Simon Raper
+Maintainer: Who to complain to <yourfault@somewhere.net>
+Description: More about what it does (maybe more than one line)
+License: What license is it under?
+Depends: reshape2, dendextend, plyr
