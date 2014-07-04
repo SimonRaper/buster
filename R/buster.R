@@ -24,10 +24,10 @@
 #' 
 #' x.1<-rnorm(50, 10, 3)
 #' y.1<-rnorm(50, 10, 3)
-#' x.2<-rnorm(50, 12, 3)
-#' y.2<-rnorm(50, 15, 4)
-#' x.3<-rnorm(50, 10, 3)
-#' y.3<-rnorm(50, 13, 4)
+#' x.2<-rnorm(50, 20, 3)
+#' y.2<-rnorm(50, 10, 3)
+#' x.3<-rnorm(50, 13, 3)
+#' y.3<-rnorm(50, 20, 3)
 #' 
 #' test.data<-data.frame(group=rep(1:3, each=50), x=c(x.1, x.2, x.3), y=c(y.1, y.2, y.3))
 #' names<-c(paste0("group 1: ", 1:50), paste0("group 2: ", 1:50), paste0("group 3: ", 1:50))
@@ -46,7 +46,6 @@
 #' alpha<-(max.co-min(max.co))/(max(max.co)-min(max.co))
 #' cols <- hsv(0,0,0,alpha)
 #' plot(graph.data$x, graph.data$y, xlim=c(0,30), ylim=c(0, 30), pch = 19, col=cols)
-#' text(graph.data$x, graph.data$y, alpha)
 
 
 buster<-function(dist, n=100, k, size=0.66, method='ward', outlier.th = 0.7) {
