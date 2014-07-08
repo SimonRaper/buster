@@ -15,8 +15,10 @@
 #' @examples
 #' 
 #' us.dist<-dist(USArrests)
-#' bhc<-buster(us.dist, n=250, k=5, size=0.66, method='ward', outlier.th=0.64)
+#' bhc<-buster(us.dist, n=250, k=5, size=0.66, method='ward', outlier.th=0.1)
 #' plot(bhc)
+#' 
+#' #Identifies the states in the California cluster as being very voltile. We expect this cluster to break up
 #' 
 #' #Simple test
 #' 
@@ -46,7 +48,7 @@
 #' alpha<-(max.co-min(max.co))/(max(max.co)-min(max.co))
 #' cols <- hsv(0,0,0,alpha)
 #' plot(graph.data$x, graph.data$y, xlim=c(0,30), ylim=c(0, 30), pch = 19, col=cols)
-#' text(graph.data$x, graph.data$y, alpha)
+
 
 
 buster<-function(dist, n=100, k, size=0.66, method='ward', outlier.th = 0.7) {
@@ -80,12 +82,12 @@ buster<-function(dist, n=100, k, size=0.66, method='ward', outlier.th = 0.7) {
   d2<-dcast(m2, ind.x~ind.y, length)
   rownames(d2)<-d2[,1]
   d2<-as.matrix(d2[rownames(dist.m),rownames(dist.m)])
-  
-  #browser()
 
   #Create the distance matrix
   dm<-d/d2
   disim<-as.dist(1-dm)
+  
+  browser()
   
   #Work out which observations are promiscuous
   dm.rep<-dm
