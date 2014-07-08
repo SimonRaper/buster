@@ -9,6 +9,7 @@
 #' @param size The percentage of the original data in each resample
 #' @param method The linkage method to be passed to hclust
 #' @param pct.exc Setting this to x excludes or highlights the top x % observations ranked by instability. For example if we set this to 0.1 then the top decile of unstable observations are excluded or highlighted.
+#' @param low.mem Setting this to true uses a slower but less memory intensive way of calculating the co-occurrences
 #' @return An an object of class buster which includes an hclust object on the co-ocurrences, an hclust object on the original distance measure and an evalution of the stability of the observations 
 #' for model objects specific to the type of classifier. 
 #' @author Simon Raper
@@ -16,7 +17,7 @@
 #' 
 #' #Testing on the iris data set
 #' iris.dist<-dist(iris[,1:4])
-#' bhc<-buster(iris.dist, n=250, k=3, size=0.66, method='ward', pct.exc=0.1)
+#' bhc<-buster(iris.dist, n=250, k=3, size=0.66, method='ward', pct.exc=0.07)
 #' plot(bhc)
 #' 
 #' #We see the unstable observations in pink.
@@ -51,7 +52,7 @@
 #' cols <- hsv(0,0,0,alpha)
 #' plot(graph.data$x, graph.data$y, xlim=c(0,30), ylim=c(0, 30), pch = 19, col=cols)
 
-buster<-function(dist, n=100, k, size=0.66, method='ward', pct.exc=0.1) {
+buster<-function(dist, n=100, k, size=0.66, method='ward', pct.exc=0.1, low.mem=FALSE) {
   
   #Constants
   dist.m<-as.matrix(dist)
@@ -76,13 +77,35 @@ buster<-function(dist, n=100, k, size=0.66, method='ward', pct.exc=0.1) {
   rownames(d)<-d[,1]
   d<-as.matrix(d[rownames(dist.m),rownames(dist.m)])
   
-  #Work out co-appearances for the observations
-  m2<-merge(clus.bs, clus.bs, by="iter")
+  if (low.mem==FALSE) {
   
-  d2<-dcast(m2, ind.x~ind.y, length)
-  rownames(d2)<-d2[,1]
-  d2<-as.matrix(d2[rownames(dist.m),rownames(dist.m)])
+    #Work out co-appearances for the observations
+    m2<-merge(clus.bs, clus.bs, by="iter")
+  
+    d2<-dcast(m2, ind.x~ind.y, length)
+    rownames(d2)<-d2[,1]
+    d2<-as.matrix(d2[rownames(dist.m),rownames(dist.m)])
 
+  } else {
+    
+    s1<-dcast(clus.bs, ind~iter, length)
+    rownames(s1)<-s1[,1]
+    s1<-s1[rownames(dist.m),]
+    
+    d2<-matrix(rep(0, nd*nd), nrow=nd)
+    rownames(d2)<-rownames(d)
+    colnames(d2)<-colnames(d)
+    
+    for (i in 1:nd){
+      for (j in 1:nd) {
+        z<-rbind(s1[i,-1], s1[j,-1])
+        cs<-colSums(z)
+        d2[i,j]<-sum(cs==2)
+      }
+    }
+    
+  }
+  
   #Create the distance matrix
   dm<-d/d2
   disim<-as.dist(1-dm)

@@ -2,7 +2,8 @@
 \alias{buster}
 \title{Buster}
 \usage{
-buster(dist, n = 100, k, size = 0.66, method = "ward", pct.exc = 0.1)
+buster(dist, n = 100, k, size = 0.66, method = "ward", pct.exc = 0.1,
+  low.mem = FALSE)
 }
 \arguments{
   \item{dist}{A distance object}
@@ -21,6 +22,10 @@ buster(dist, n = 100, k, size = 0.66, method = "ward", pct.exc = 0.1)
   the top x % observations ranked by instability. For
   example if we set this to 0.1 then the top decile of
   unstable observations are excluded or highlighted.}
+
+  \item{low.mem}{Setting this to true uses a slower but
+  less memory intensive way of calculating the
+  co-occurrences}
 }
 \value{
 An an object of class buster which includes an hclust

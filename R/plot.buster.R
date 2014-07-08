@@ -34,8 +34,8 @@
 #' plot(graph.data$x, graph.data$y, xlim=c(0,30), ylim=c(0, 30), pch = 19, col=cols)
 
 plot.buster<-function(buster){
-  
-  plot(buster$bhclust, main="Dendrogram excluding unstable observations")
+  dend <- as.dendrogram(buster$bhclust)
+  plot_horiz.dendrogram(dend, main="Dendrogram excluding unstable observations")
   dend <- as.dendrogram(buster$hclust)
   alpha<-1-buster$obs.eval$exclude[order(bhc$obs.eval$obs.ind)]
   alpha[alpha==0]<-0.2
