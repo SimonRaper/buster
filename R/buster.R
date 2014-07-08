@@ -8,21 +8,23 @@
 #' @param k The number of clusters
 #' @param size The percentage of the original data in each resample
 #' @param method The linkage method to be passed to hclust
-#' @param outlier.th The threshold below which observations should be discarded
+#' @param pct.exc Setting this to x excludes or highlights the top x % observations ranked by instability. For example if we set this to 0.1 then the top decile of unstable observations are excluded or highlighted.
 #' @return An an object of class buster which includes an hclust object on the co-ocurrences, an hclust object on the original distance measure and an evalution of the stability of the observations 
 #' for model objects specific to the type of classifier. 
 #' @author Simon Raper
 #' @examples
 #' 
-#' us.dist<-dist(USArrests)
-#' bhc<-buster(us.dist, n=250, k=5, size=0.66, method='ward', outlier.th=0.1)
+#' #Testing on the iris data set
+#' iris.dist<-dist(iris[,1:4])
+#' bhc<-buster(iris.dist, n=250, k=3, size=0.66, method='ward', pct.exc=0.1)
 #' plot(bhc)
 #' 
-#' #Identifies the states in the California cluster as being very voltile. We expect this cluster to break up
+#' #We see the unstable observations in pink.
 #' 
-#' #Simple test
+#' cluster<-bhc$obs.eval$cluster[order(bhc$obs.eval$obs.ind)]
+#' plot(iris[,1:4], col=cols, pch = rep(15:17, each=50))
 #' 
-#' #First look at how it picks out the borderline cases
+#' #Another simple test
 #' 
 #' x.1<-rnorm(50, 10, 3)
 #' y.1<-rnorm(50, 10, 3)
@@ -36,7 +38,7 @@
 #' rownames(test.data)<-names
 #' dist<-dist(test.data[,-1])
 #' 
-#' bhc<-buster(dist, n=200, k=3, size=0.66, method='ward', outlier.th=0.9)
+#' bhc<-buster(dist, n=200, k=3, size=0.66, method='ward', pct.exc=0.1)
 #' 
 #' plot(bhc)
 #' 
@@ -49,7 +51,7 @@
 #' cols <- hsv(0,0,0,alpha)
 #' plot(graph.data$x, graph.data$y, xlim=c(0,30), ylim=c(0, 30), pch = 19, col=cols)
 
-buster<-function(dist, n=100, k, size=0.66, method='ward', outlier.th = 0.7) {
+buster<-function(dist, n=100, k, size=0.66, method='ward', pct.exc=0.1, exclude=TRUE) {
   
   #Constants
   dist.m<-as.matrix(dist)
@@ -89,12 +91,10 @@ buster<-function(dist, n=100, k, size=0.66, method='ward', outlier.th = 0.7) {
   dm.rep<-dm
   diag(dm.rep)<-0
   most<-apply(dm.rep,1,var)
-  #exclude<-which(most<outlier.th)
-  include<-which(most>=outlier.th)
   
   #Dendrogram with promiscuous observations labelled
   
-  h<-hclust(disim, "ward")
+  h<-hclust(disim, method)
   
   #Remove them from the distance matrix
   
@@ -104,7 +104,7 @@ buster<-function(dist, n=100, k, size=0.66, method='ward', outlier.th = 0.7) {
   #Run hierarchical clustering
   h.co<-hclust(disim, method)
   
-  eval<-data.frame(obs.ind=1:nd, obs.names=names(most), max.co = most, exclude=most<=outlier.th)
+  eval<-data.frame(obs.ind=1:nd, obs.names=names(most), max.co = most, exclude=most<=quantile(most, pct.exc))
   clus<-data.frame(obs.names=h$labels, cluster = cutree(h, k))
   m<-merge(clus, eval, by="obs.names", all.x=TRUE)
   m$cluster[m$exclude==TRUE]<-0

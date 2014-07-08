@@ -2,7 +2,8 @@
 \alias{buster}
 \title{Buster}
 \usage{
-buster(dist, n = 100, k, size = 0.66, method = "ward", outlier.th = 0.7)
+buster(dist, n = 100, k, size = 0.66, method = "ward", pct.exc = 0.1,
+  exclude = TRUE)
 }
 \arguments{
   \item{dist}{A distance object}
@@ -17,8 +18,10 @@ buster(dist, n = 100, k, size = 0.66, method = "ward", outlier.th = 0.7)
 
   \item{method}{The linkage method to be passed to hclust}
 
-  \item{outlier.th}{The threshold below which observations
-  should be discarded}
+  \item{pct.exc}{Setting this to x excludes or highlights
+  the top x % observations ranked by instability. For
+  example if we set this to 0.1 then the top decile of
+  unstable observations are excluded or highlighted.}
 }
 \value{
 An an object of class buster which includes an hclust
@@ -31,27 +34,31 @@ of classifier.
 Performs bagging on the hierarchical clusters
 }
 \examples{
-us.dist<-dist(USArrests)
-bhc<-buster(us.dist, n=250, k=5, size=0.66, method='ward', outlier.th=0.64)
+#Testing on the iris data set
+iris.dist<-dist(iris[,1:4])
+bhc<-buster(iris.dist, n=250, k=3, size=0.66, method='ward', pct.exc=0.1)
 plot(bhc)
 
-#Simple test
+#We see the unstable observations in pink.
 
-#First look at how it picks out the borderline cases
+cluster<-bhc$obs.eval$cluster[order(bhc$obs.eval$obs.ind)]
+plot(iris[,1:4], col=cols, pch = rep(15:17, each=50))
+
+#Another simple test
 
 x.1<-rnorm(50, 10, 3)
 y.1<-rnorm(50, 10, 3)
-x.2<-rnorm(50, 12, 3)
-y.2<-rnorm(50, 15, 4)
-x.3<-rnorm(50, 10, 3)
-y.3<-rnorm(50, 13, 4)
+x.2<-rnorm(50, 20, 3)
+y.2<-rnorm(50, 10, 3)
+x.3<-rnorm(50, 13, 3)
+y.3<-rnorm(50, 20, 3)
 
 test.data<-data.frame(group=rep(1:3, each=50), x=c(x.1, x.2, x.3), y=c(y.1, y.2, y.3))
 names<-c(paste0("group 1: ", 1:50), paste0("group 2: ", 1:50), paste0("group 3: ", 1:50))
 rownames(test.data)<-names
 dist<-dist(test.data[,-1])
 
-bhc<-buster(dist, n=200, k=3, size=0.66, method='ward', outlier.th=0.9)
+bhc<-buster(dist, n=200, k=3, size=0.66, method='ward', pct.exc=0.1)
 
 plot(bhc)
 
@@ -63,7 +70,6 @@ max.co<-bhc$obs.eval$max.co[order(bhc$obs.eval$obs.ind)]
 alpha<-(max.co-min(max.co))/(max(max.co)-min(max.co))
 cols <- hsv(0,0,0,alpha)
 plot(graph.data$x, graph.data$y, xlim=c(0,30), ylim=c(0, 30), pch = 19, col=cols)
-text(graph.data$x, graph.data$y, alpha)
 }
 \author{
 Simon Raper
