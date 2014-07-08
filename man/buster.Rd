@@ -2,8 +2,7 @@
 \alias{buster}
 \title{Buster}
 \usage{
-buster(dist, n = 100, k, size = 0.66, method = "ward", pct.exc = 0.1,
-  exclude = TRUE)
+buster(dist, n = 100, k, size = 0.66, method = "ward", pct.exc = 0.1)
 }
 \arguments{
   \item{dist}{A distance object}
@@ -31,7 +30,7 @@ of the observations for model objects specific to the type
 of classifier.
 }
 \description{
-Performs bagging on the hierarchical clusters
+Performs bagging on hierarchical clusters
 }
 \examples{
 #Testing on the iris data set
@@ -42,7 +41,7 @@ plot(bhc)
 #We see the unstable observations in pink.
 
 cluster<-bhc$obs.eval$cluster[order(bhc$obs.eval$obs.ind)]
-plot(iris[,1:4], col=cols, pch = rep(15:17, each=50))
+plot(iris[,1:4], col=6-cluster, pch = rep(15:17, each=50))
 
 #Another simple test
 

@@ -1,7 +1,7 @@
 #'
 #' Buster
 #'
-#' Performs bagging on the hierarchical clusters
+#' Performs bagging on hierarchical clusters
 #'
 #' @param dist A distance object
 #' @param n The number of times the data should be resampled
@@ -22,7 +22,7 @@
 #' #We see the unstable observations in pink.
 #' 
 #' cluster<-bhc$obs.eval$cluster[order(bhc$obs.eval$obs.ind)]
-#' plot(iris[,1:4], col=cols, pch = rep(15:17, each=50))
+#' plot(iris[,1:4], col=6-cluster, pch = rep(15:17, each=50))
 #' 
 #' #Another simple test
 #' 
@@ -51,7 +51,7 @@
 #' cols <- hsv(0,0,0,alpha)
 #' plot(graph.data$x, graph.data$y, xlim=c(0,30), ylim=c(0, 30), pch = 19, col=cols)
 
-buster<-function(dist, n=100, k, size=0.66, method='ward', pct.exc=0.1, exclude=TRUE) {
+buster<-function(dist, n=100, k, size=0.66, method='ward', pct.exc=0.1) {
   
   #Constants
   dist.m<-as.matrix(dist)
@@ -91,14 +91,16 @@ buster<-function(dist, n=100, k, size=0.66, method='ward', pct.exc=0.1, exclude=
   dm.rep<-dm
   diag(dm.rep)<-0
   most<-apply(dm.rep,1,var)
+  include<-most>quantile(most, pct.exc)
   
-  #Dendrogram with promiscuous observations labelled
+  #Clustering on the full data set
   
   h<-hclust(disim, method)
   
-  #Remove them from the distance matrix
+  #Remove unstable obs from the distance matrix
   
-  dm<-d/diag(d)
+  dm<-d[include,include]/d2[include,include]
+  row.names(dm)<-rownames(d)[include]
   disim<-as.dist(1-dm)
   
   #Run hierarchical clustering
