@@ -37,7 +37,7 @@ plot.buster<-function(buster){
   dend <- as.dendrogram(buster$bhclust)
   plot_horiz.dendrogram(dend, main="Dendrogram excluding unstable observations")
   dend <- as.dendrogram(buster$hclust)
-  alpha<-1-buster$obs.eval$exclude[order(bhc$obs.eval$obs.ind)]
+  alpha<-1-buster$obs.eval$exclude[order(buster$obs.eval$obs.ind)]
   alpha[alpha==0]<-0.2
   labels_colors(dend) <- hsv(0,0,0,alpha[buster$hclust$order])
   plot(dend, main="Dendrogram including unstable observations")
