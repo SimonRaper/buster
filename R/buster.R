@@ -52,62 +52,53 @@
 #' cols <- hsv(0,0,0,alpha)
 #' plot(graph.data$x, graph.data$y, xlim=c(0,30), ylim=c(0, 30), pch = 19, col=cols)
 
-buster<-function(dist, n=100, k, size=0.66, method='ward', pct.exc=0.1, low.mem=FALSE) {
+buster<-function(dist, n=100, k, size=0.66, method='ward', pct.exc=0.1) {
   
   #Constants
   dist.m<-as.matrix(dist)
   nd<-nrow(dist.m)
   size<-round(size*nd)
   
+  #Set up matrices
+  
+  cs<-matrix(rep(0, nd*nd), nrow=nd)
+  rownames(cs)<-rownames(dist.m)
+  colnames(cs)<-colnames(dist.m)
+  co<-matrix(rep(0, nd*nd), nrow=nd)
+  rownames(co)<-rownames(dist.m)
+  colnames(co)<-colnames(dist.m)
+  
   #Store the results of n clusterings
-  clus.bs<-NULL
+  #clus.bs<-NULL
   for (i in 1:n) {
-    bs.ind<-sample.int(nd, size, replace=FALSE)
+    bs.ind<-sample.int(nd, size, replace=FALSE) #Resample
+    sampled<-as.numeric(1:nd %in% bs.ind) #Create a vector indicating whether or not a data point is included in the sample
+    cs.inc<-sampled%*%t(sampled) #Increment for co-sampled
+    cs<-cs+cs.inc
     samp.dist<-as.dist(dist.m[bs.ind, bs.ind])
     hc <- hclust(samp.dist, method)
     ct<-cutree(hc, k)
-    add<-data.frame(iter=rep(i, size), ind=names(ct), cluster=ct)
-    clus.bs<-rbind(clus.bs, add)
+    ct<-data.frame(names=names(ct), ct=ct)
+    names.list<-data.frame(names=rownames(dist.m))
+    clusters<-merge(names.list, ct, by="names", all.x=TRUE)
+    clusters$ct[is.na(clusters$ct)]<-0
+    clusters$ct<-as.factor(clusters$ct)
+    
+    dummied<-model.matrix(~ct, data=clusters)
+    rownames(dummied)<-clusters$names
+    
+    dummied[rowSums(dummied[,-1])>0,1]<-0
+    dummied<-dummied[rownames(dist.m),-1]
+    co.inc<-dummied%*%t(dummied) #Increment for co-occurence
+    co<-co+co.inc
+    
+    #add<-data.frame(iter=rep(i, size), ind=names(ct), cluster=ct)
+    #clus.bs<-rbind(clus.bs, add)
   }
-    
-  #Work out co-occurence in clusters for the observations
-  m<-merge(clus.bs, clus.bs, by=c("iter", "cluster"))
   
-  d<-dcast(m, ind.x~ind.y, length)
-  rownames(d)<-d[,1]
-  d<-as.matrix(d[rownames(dist.m),rownames(dist.m)])
-  
-  if (low.mem==FALSE) {
-  
-    #Work out co-appearances for the observations
-    m2<-merge(clus.bs, clus.bs, by="iter")
-  
-    d2<-dcast(m2, ind.x~ind.y, length)
-    rownames(d2)<-d2[,1]
-    d2<-as.matrix(d2[rownames(dist.m),rownames(dist.m)])
-
-  } else {
-    
-    s1<-dcast(clus.bs, ind~iter, length)
-    rownames(s1)<-s1[,1]
-    s1<-s1[rownames(dist.m),]
-    
-    d2<-matrix(rep(0, nd*nd), nrow=nd)
-    rownames(d2)<-rownames(d)
-    colnames(d2)<-colnames(d)
-    
-    for (i in 1:nd){
-      for (j in 1:nd) {
-        z<-rbind(s1[i,-1], s1[j,-1])
-        cs<-colSums(z)
-        d2[i,j]<-sum(cs==2)
-      }
-    }
-    
-  }
   
   #Create the distance matrix
-  dm<-d/d2
+  dm<-co/cs
   disim<-as.dist(1-dm)
   
   #Work out which observations are promiscuous
@@ -122,8 +113,8 @@ buster<-function(dist, n=100, k, size=0.66, method='ward', pct.exc=0.1, low.mem=
   
   #Remove unstable obs from the distance matrix
   
-  dm<-d[include,include]/d2[include,include]
-  row.names(dm)<-rownames(d)[include]
+  dm<-co[include,include]/cs[include,include]
+  row.names(dm)<-rownames(co)[include]
   disim<-as.dist(1-dm)
   
   #Run hierarchical clustering
@@ -133,7 +124,7 @@ buster<-function(dist, n=100, k, size=0.66, method='ward', pct.exc=0.1, low.mem=
   clus<-data.frame(obs.names=h$labels, cluster = cutree(h, k))
   m<-merge(clus, eval, by="obs.names", all.x=TRUE)
   m$cluster[m$exclude==TRUE]<-0
-
+  
   buster<-list(bhclust=h.co, hclust=h, obs.eval=m)
   
   class(buster)<-"buster"
@@ -141,3 +132,4 @@ buster<-function(dist, n=100, k, size=0.66, method='ward', pct.exc=0.1, low.mem=
   return(buster)
   
 }
+
