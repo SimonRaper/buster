@@ -10,8 +10,13 @@
 #' @param method The linkage method to be passed to hclust
 #' @param pct.exc Setting this to x excludes or highlights the top x % observations ranked by instability. For example if we set this to 0.1 then the top decile of unstable observations are excluded or highlighted.
 #' @param low.mem Setting this to true uses a slower but less memory intensive way of calculating the co-occurrences
-#' @return An an object of class buster which includes an hclust object on the co-ocurrences, an hclust object on the original distance measure and an evalution of the stability of the observations 
-#' for model objects specific to the type of classifier. 
+#' @return An an object of class buster which includes
+#' \itemize{
+#'  \item{bhclust }{An hclust object on the co-ocurrences}
+#'  \item{bhclust.ex }{An hclust object on the co-ocurrences exclduing unstable observations}
+#'  \item{hclust }{An hclust object on the original distance measure}
+#'  \item{obs.eval }{An evalution of the stability of the observations}
+#' } 
 #' @author Simon Raper
 #' @examples
 #' 
@@ -125,7 +130,7 @@ buster<-function(dist, n=100, k, size=0.66, method='ward', pct.exc=0.1) {
   m<-merge(clus, eval, by="obs.names", all.x=TRUE)
   m$cluster[m$exclude==TRUE]<-0
   
-  buster<-list(bhclust=h.co, hclust=h, obs.eval=m)
+  buster<-list(bhclust=h, bhclust.ex=h.co, hclust=hclust(dist), obs.eval=m)
   
   class(buster)<-"buster"
   

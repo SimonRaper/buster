@@ -34,14 +34,14 @@
 #' plot(graph.data$x, graph.data$y, xlim=c(0,30), ylim=c(0, 30), pch = 19, col=cols)
 
 plot.buster<-function(buster){
-  dend <- as.dendrogram(buster$bhclust)
+  dend <- as.dendrogram(buster$bhclust.ex)
   dend<-raise.dendrogram(dend , 5)
   plot(dend, main="Dendrogram excluding unstable observations")
-  dend <- as.dendrogram(buster$hclust)
+  dend <- as.dendrogram(buster$bhclust)
   dend<-raise.dendrogram(dend , 5)
   alpha<-1-buster$obs.eval$exclude[order(buster$obs.eval$obs.ind)]
   alpha[alpha==0]<-0.2
-  labels_colors(dend) <- hsv(0,0,0,alpha[buster$hclust$order])
+  labels_colors(dend) <- hsv(0,0,0,alpha[buster$bhclust$order])
   plot(dend, main="Dendrogram including unstable observations")
   
 }

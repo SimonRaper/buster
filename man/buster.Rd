@@ -2,8 +2,7 @@
 \alias{buster}
 \title{Buster}
 \usage{
-buster(dist, n = 100, k, size = 0.66, method = "ward", pct.exc = 0.1,
-  low.mem = FALSE)
+buster(dist, n = 100, k, size = 0.66, method = "ward", pct.exc = 0.1)
 }
 \arguments{
   \item{dist}{A distance object}
@@ -28,11 +27,12 @@ buster(dist, n = 100, k, size = 0.66, method = "ward", pct.exc = 0.1,
   co-occurrences}
 }
 \value{
-An an object of class buster which includes an hclust
-object on the co-ocurrences, an hclust object on the
-original distance measure and an evalution of the stability
-of the observations for model objects specific to the type
-of classifier.
+An an object of class buster which includes \itemize{
+\item{bhclust }{An hclust object on the co-ocurrences}
+\item{bhclust.ex }{An hclust object on the co-ocurrences
+exclduing unstable observations} \item{hclust }{An hclust
+object on the original distance measure} \item{obs.eval
+}{An evalution of the stability of the observations} }
 }
 \description{
 Performs bagging on hierarchical clusters
@@ -40,7 +40,7 @@ Performs bagging on hierarchical clusters
 \examples{
 #Testing on the iris data set
 iris.dist<-dist(iris[,1:4])
-bhc<-buster(iris.dist, n=250, k=3, size=0.66, method='ward', pct.exc=0.1)
+bhc<-buster(iris.dist, n=250, k=3, size=0.66, method='ward', pct.exc=0.07)
 plot(bhc)
 
 #We see the unstable observations in pink.
