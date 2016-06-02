@@ -22,7 +22,7 @@
 #' 
 #' #Testing on the iris data set
 #' iris.dist<-dist(iris[,1:4])
-#' bhc<-buster(iris.dist, n=250, k=3, size=0.66, method='ward', pct.exc=0.07)
+#' bhc<-buster(iris.dist, n=250, k=3, size=0.66, method='ward.D', pct.exc=0.07)
 #' plot(bhc)
 #' 
 #' #We see the unstable observations in pink.
@@ -44,7 +44,7 @@
 #' rownames(test.data)<-names
 #' dist<-dist(test.data[,-1])
 #' 
-#' bhc<-buster(dist, n=200, k=3, size=0.66, method='ward', pct.exc=0.1)
+#' bhc<-buster(dist, n=200, k=3, size=0.66, method='ward.D', pct.exc=0.1)
 #' 
 #' plot(bhc)
 #' 
@@ -57,7 +57,7 @@
 #' cols <- hsv(0,0,0,alpha)
 #' plot(graph.data$x, graph.data$y, xlim=c(0,30), ylim=c(0, 30), pch = 19, col=cols)
 
-buster<-function(dist, n=100, k, size=0.66, method='ward', pct.exc=0.1) {
+buster<-function(dist, n=100, k, size=0.66, method='ward.D', pct.exc=0.1) {
   
   #Constants
   dist.m<-as.matrix(dist)
